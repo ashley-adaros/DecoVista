@@ -25,7 +25,7 @@ DecoVista está diseñada bajo los principios de **Clean Architecture** y **MVVM
 
 ```mermaid
 graph TD
-    subgraph app [":app"]
+    subgraph app_module [":app"]
         app[Orquestador / Navigation / DI Entry]
     end
 
@@ -89,14 +89,3 @@ Para ejecutar las pruebas del motor de geometría y validar el algoritmo de coli
 ```bash
 ./gradlew :core:calculator:testUnitTest
 ```
-
----
-
-## 📄 Licencia
-Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
-
----
-
-## ✉️ Contacto
-*   **Desarrollador**: Tu Nombre - [LinkedIn](https://linkedin.com/in/tu-perfil) - mail@tu-dominio.com
-*   **Proyecto**: [https://github.com/tu-usuario/DecoVista](https://github.com/tu-usuario/DecoVista)
