@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permiso requerido para la cámara y AR -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -19,7 +20,8 @@
         <!-- Declaración requerida para ARCore -->
         <meta-data
             android:name="com.google.ar.core"
-            android:value="required" />
+            android:value="required"
+            tools:replace="android:value" />
 
         <activity
             android:name="com.decovista.MainActivity"

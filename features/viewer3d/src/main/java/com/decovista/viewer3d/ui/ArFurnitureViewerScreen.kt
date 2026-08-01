@@ -14,16 +14,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,13 +36,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.decovista.core.arengine.ArSceneViewComposable
 
 @Composable
 fun ArFurnitureViewerScreen(
-    modelUrl: String, // Enlace al archivo .glb del mueble seleccionado
+    modelUrl: String,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -64,10 +63,8 @@ fun ArFurnitureViewerScreen(
 
     Box(modifier = modifier.fillMaxSize().background(Color(0xFF0F172A))) {
         if (hasCameraPermission) {
-            // Cargar el visor ARCore + Sceneview
             ArSceneViewContainer(modelUrl = modelUrl)
         } else {
-            // Pantalla informativa de solicitud de permisos
             PermissionRequestScreen(
                 onRequestPermission = { permissionLauncher.launch(Manifest.permission.CAMERA) }
             )
@@ -84,6 +81,7 @@ fun ArSceneViewContainer(
     var planeDetected by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
+        // Invocar el simulador interactivo de AR del Core
         ArSceneViewComposable(
             modelUrl = modelUrl,
             onModelLoaded = { isLoadingModel = false },
@@ -113,7 +111,7 @@ fun ArSceneViewContainer(
             }
         }
 
-        // Cargador asíncrono del mesh 3D
+        // Cargador asíncrono
         if (isLoadingModel) {
             Column(
                 modifier = Modifier
@@ -125,7 +123,7 @@ fun ArSceneViewContainer(
                 CircularProgressIndicator(color = Color(0xFF38BDF8))
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Descargando Modelo 3D...",
+                    text = "Cargando Espacio AR...",
                     color = Color.White,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
@@ -133,7 +131,7 @@ fun ArSceneViewContainer(
             }
         }
 
-        // Guía inferior de interacción táctil
+        // Guía inferior de interacción
         AnimatedVisibility(
             visible = planeDetected && !isLoadingModel,
             enter = fadeIn(),
@@ -148,7 +146,7 @@ fun ArSceneViewContainer(
                     .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 Text(
-                    text = "Toca para colocar • Arrastra para mover • Rota con dos dedos",
+                    text = "Toca y arrastra para mover • Rota con gestos táctiles",
                     color = Color(0xFF38BDF8),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold

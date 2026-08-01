@@ -8,61 +8,31 @@ import com.decovista.core.database.DecoVistaDatabase
 import com.decovista.core.database.dao.FurnitureDao
 import com.decovista.core.database.dao.RoomLayoutDao
 import com.decovista.core.database.model.FurnitureItemEntity
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Qualifier
-import javax.inject.Singleton
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ApplicationScope
+/**
+ * Proveedor manual Singleton de la Base de Datos para evitar dependencias de Hilt/Kapt.
+ */
+object DatabaseProvider {
+    @Volatile
+    private var INSTANCE: DecoVistaDatabase? = null
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModule {
-
-    @Provides
-    @Singleton
-    @ApplicationScope
-    fun provideApplicationScope(): CoroutineScope {
-        return CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    }
-
-    @Provides
-    @Singleton
-    fun provideDecoVistaDatabase(
-        @ApplicationContext context: Context,
-        databaseCallback: DatabaseCallback
-    ): DecoVistaDatabase {
-        return Room.databaseBuilder(
-            context,
-            DecoVistaDatabase::class.java,
-            "decovista_db"
-        )
-        .addCallback(databaseCallback) // Callback para pre-poblar
-        .fallbackToDestructiveMigration()
-        .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideFurnitureDao(database: DecoVistaDatabase): FurnitureDao {
-        return database.furnitureDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRoomLayoutDao(database: DecoVistaDatabase): RoomLayoutDao {
-        return database.roomLayoutDao()
+    fun getDatabase(context: Context): DecoVistaDatabase {
+        return INSTANCE ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                DecoVistaDatabase::class.java,
+                "decovista_db"
+            )
+            .addCallback(DatabaseCallback(context.applicationContext))
+            .fallbackToDestructiveMigration()
+            .build()
+            INSTANCE = instance
+            instance
+        }
     }
 }
 
@@ -70,21 +40,23 @@ object DatabaseModule {
  * Callback de Room para insertar automáticamente los muebles de prueba en el catálogo 
  * al momento de crear la base de datos por primera vez.
  */
-class DatabaseCallback @Inject constructor(
-    private val furnitureDaoProvider: Provider<FurnitureDao>,
-    @ApplicationScope private val applicationScope: CoroutineScope
+class DatabaseCallback(
+    private val appContext: Context
 ) : RoomDatabase.Callback() {
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate(db: SupportSQLiteDatabase) {
         super.onCreate(db)
-        // Insertar los elementos asíncronamente en el hilo IO
         applicationScope.launch {
             populateCatalog()
         }
     }
 
     private suspend fun populateCatalog() {
-        val furnitureDao = furnitureDaoProvider.get()
+        val database = DatabaseProvider.getDatabase(appContext)
+        val furnitureDao = database.furnitureDao()
+        
         val initialItems = listOf(
             FurnitureItemEntity(
                 id = "1",

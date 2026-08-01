@@ -98,35 +98,33 @@ fun SpacePlannerScreen(
                 // Barra de herramientas flotante de Rotación/Eliminación
                 val selectedItem = uiState.placedFurniture.find { it.id == uiState.selectedFurnitureId }
                 
-                AnimatedVisibility(
-                    visible = selectedItem != null,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                ) {
-                    FloatingControls(
-                        onRotateClockwise = { viewModel.rotateSelectedFurniture(15f) },
-                        onRotateCounterClockwise = { viewModel.rotateSelectedFurniture(-15f) },
-                        onDelete = viewModel::deleteSelectedFurniture,
-                        onViewInAr = {
-                            selectedItem?.let { onViewInAr(it.modelGlbUrl) }
-                        }
-                    )
+                if (selectedItem != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                    ) {
+                        FloatingControls(
+                            onRotateClockwise = { viewModel.rotateSelectedFurniture(15f) },
+                            onRotateCounterClockwise = { viewModel.rotateSelectedFurniture(-15f) },
+                            onDelete = viewModel::deleteSelectedFurniture,
+                            onViewInAr = {
+                                selectedItem?.let { onViewInAr(it.modelGlbUrl) }
+                            }
+                        )
+                    }
                 }
 
                 // Banner de Alerta por Colisión o Fuera de Límites
                 val conflictiveItem = uiState.placedFurniture.find { it.hasCollision || it.isOutOfBounds }
-                AnimatedVisibility(
-                    visible = conflictiveItem != null,
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut() + slideOutVertically(),
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 16.dp)
-                ) {
-                    conflictiveItem?.let { AlertBanner(it) }
+                if (conflictiveItem != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp)
+                    ) {
+                        AlertBanner(conflictiveItem)
+                    }
                 }
             }
 

@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.51.1")
+    }
+}
+
 // Plugins raíz precargados para subproyectos
 plugins {
     alias(libs.plugins.android.application) apply false
