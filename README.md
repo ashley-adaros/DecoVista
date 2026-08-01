@@ -1,27 +1,34 @@
-# DecoVista — Visualización y Planificación de Espacios 3D / AR
+# 📐 DecoVista — Visualización y Planificación de Espacios 3D / AR
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.23-7F52FF.svg?style=flat-square&logo=kotlin)](https://kotlinlang.org/)
-[![Compose](https://img.shields.io/badge/Jetpack_Compose-2024.04.01-4285F4.svg?style=flat-square&logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
-[![ARCore](https://img.shields.io/badge/ARCore-1.42.0-EA4335.svg?style=flat-square&logo=google)](https://developers.google.com/ar)
-[![Room](https://img.shields.io/badge/Room_DB-2.6.1-3DDC84.svg?style=flat-square&logo=android)](https://developer.android.com/training/data-storage/room)
-[![Architecture](https://img.shields.io/badge/Architecture-Clean_%2B_MVVM-blue.svg?style=flat-square)](#)
+<div align="center">
+  <img src="https://img.shields.io/badge/Kotlin-1.9.23-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin Badge"/>
+  <img src="https://img.shields.io/badge/Jetpack_Compose-2024.04.01-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Compose Badge"/>
+  <img src="https://img.shields.io/badge/ARCore-1.42.0-EA4335?style=for-the-badge&logo=google&logoColor=white" alt="ARCore Badge"/>
+  <img src="https://img.shields.io/badge/Room_DB-2.6.1-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Room Badge"/>
+  <img src="https://img.shields.io/badge/Architecture-Clean_%2B_MVVM-0052CC?style=for-the-badge" alt="Architecture Badge"/>
+</div>
 
-**DecoVista** es una aplicación móvil nativa para Android escrita en Kotlin que revoluciona el diseño de interiores y la planificación de espacios. Permite a los usuarios diseñar planos en un lienzo digital interactivo 2D y proyectar modelos de muebles tridimensionales en su entorno real a escala métrica exacta 1:1 mediante Realidad Aumentada (AR).
+---
+
+**DecoVista** es una aplicación móvil nativa para Android escrita en Kotlin diseñada bajo principios de arquitectura modular premium. Permite a los usuarios diseñar planos en un lienzo digital interactivo 2D y proyectar modelos de muebles tridimensionales en su entorno real a escala métrica exacta 1:1 mediante Realidad Aumentada (AR).
+
+> [!NOTE]
+> La aplicación está diseñada con un aislamiento de dependencias riguroso que permite simular y probar la lógica espacial sin necesidad de inicializar el emulador de Android.
 
 ---
 
 ## 🚀 Características Principales
 
-*   📐 **Plano Interactivo 2D**: Diseña y distribuye habitaciones en un Canvas interactivo y reactivo mapeado a escalas métricas de la vida real.
-*   🕶️ **Proyección AR a Escala Real**: Utiliza ARCore y Filament (Sceneview) para visualizar muebles 3D (formato `.glb` / `.gltf`) en tu casa a escala estricta $1\text{m} = 1\text{ unidad virtual}$ bloqueando el escalado accidental.
+*   📐 **Plano Interactivo 2D**: Diseña y distribuye habitaciones en un Canvas interactivo y reactivo mapeado a escalas métricas de la vida real mediante gestos táctiles.
+*   🕶️ **Proyección AR a Escala Real (1:1)**: Visualiza tus muebles 3D (formato `.glb` / `.gltf`) en tu casa a escala estricta $1\text{m} = 1\text{ unidad virtual}$ bloqueando el escalado accidental.
 *   ⚡ **Detección de Colisiones OBB (Oriented Bounding Box)**: Motor geométrico en tiempo real basado en el *Teorema del Eje Separador (SAT)* para predecir si dos muebles rotados colisionan o si sobresalen del espacio útil de la habitación.
-*   📂 **Catálogo de Muebles Local**: Persistencia rápida y reactiva en base de datos local SQLite mediante Room, permitiendo el guardado de planos y diseños históricos con borrado relacional en cascada.
+*   📂 **Catálogo de Muebles Local**: Persistencia rápida y reactiva en base de datos local SQLite mediante Room, con borrado relacional en cascada.
 
 ---
 
-## 🛠️ Arquitectura y Buenas Prácticas
+## 🛠️ Arquitectura Modular y Clean Architecture
 
-DecoVista está diseñada bajo los principios de **Clean Architecture** y **MVVM (Model-View-ViewModel)**. El proyecto está estructurado con una arquitectura modular híbrida orientada a optimizar la velocidad de compilación, el aislamiento de dependencias nativas complejas y la testabilidad unitaria:
+DecoVista está estructurada con una arquitectura modular híbrida orientada a optimizar la velocidad de compilación, el aislamiento de dependencias nativas complejas y la testabilidad unitaria:
 
 ```mermaid
 graph TD
@@ -47,45 +54,70 @@ graph TD
     planner2d & viewer3d & catalog --> ar-engine & calculator & database & network & designsystem
 ```
 
-### Principios de Ingeniería Clave:
-1.  **Módulo Kotlin Puro (`:core:calculator`)**: Desacopla por completo todas las fórmulas de proyección geométrica y colisiones de los SDKs de Android (`Context`, `Canvas`, `View`). Esto permite realizar tests unitarios veloces (sin emuladores) en milisegundos.
-2.  **Abstracción Gráfica (`:core:ar-engine`)**: Toda la complejidad de configurar los motores gráficos Filament / OpenGL y el ciclo de vida de la cámara con ARCore se encapsula, de forma que el módulo visual `:features:viewer3d` solo interactúa con representaciones declarativas y reactivas en Jetpack Compose.
-3.  **Integridad Referencial Relacional**: El esquema local cuenta con restricciones estrictas de claves externas (`ForeignKey.CASCADE`) e índices optimizados en SQLite para asegurar la consistencia y el alto rendimiento en dispositivos de gama media.
+### Matriz de Módulos y Responsabilidades
+
+| Módulo | Tipo | Responsabilidad Principal | Tecnologías Clave |
+| :--- | :--- | :--- | :--- |
+| `:app` | Android Application | Orquestación general, punto de entrada, manifest principal y flujos de navegación globales. | Compose Navigation |
+| `:features:planner2d` | Android Library | Plano interactivo 2D, Canvas táctil en Compose, selección y transformaciones espaciales en metros. | Compose Canvas |
+| `:features:viewer3d` | Android Library | Interfaz de Realidad Aumentada interactiva y control de cámara. | Compose |
+| `:features:catalog` | Android Library | Lista y previsualización de muebles interactiva de la biblioteca. | Material Design 3 |
+| `:core:calculator` | **Pure Kotlin (JVM)** | Motor geométrico. Algoritmo SAT (Separating Axis Theorem), cálculo de OBB y proximidad de colisiones sin SDK de Android. | Kotlin Standard Lib |
+| `:core:database` | Android Library | Persistencia local persistente del catálogo y planos del usuario. | SQLite, Room Database |
+| `:core:ar-engine` | Android Library | Abstracción de motores gráficos 3D/AR para desacoplar el visor de las APIs de bajo nivel de la GPU. | ARCore, Compose |
+| `:core:designsystem` | Android Library | Paleta de colores premium (Slate/Blue/Zinc), tipografías personalizadas y componentes visuales reutilizables. | Jetpack Compose |
+
+> [!IMPORTANT]
+> **Aislamiento en `:core:calculator`**: Este módulo no tiene dependencias de `android.jar`, lo que permite correr las suites de pruebas unitarias matemáticas en microsegundos sin levantar emuladores ni depender de Robolectric.
 
 ---
 
 ## 📋 Requisitos del Sistema
 
-*   **Android SDK**: API 26 (Android 8.0 Oreo) o superior (Requerido por ARCore).
-*   **Hardware**: Dispositivo compatible con ARCore (Giroscopio, Acelerómetro y cámara con calibración AR).
-*   **Herramientas**: Android Studio Jellyfish (o más nuevo) y JDK 17.
+*   **Android SDK**: API 26 (Android 8.0 Oreo) o superior.
+*   **Hardware**: Dispositivo compatible con ARCore (Giroscopio, Acelerómetro y cámara con calibración AR) para el visor 3D.
+*   **Herramientas**: Android Studio (Jellyfish o superior) y **JDK 17** (Temurin OpenJDK recomendado).
 
 ---
 
-## 🛠️ Instalación y Configuración
+## ⚙️ Configuración y Ejecución
 
-1. **Clona el repositorio:**
-   ```bash
-   git clone https://github.com/tu-usuario/DecoVista.git
-   cd DecoVista
-   ```
+### 1. Clona el repositorio
+```bash
+git clone https://github.com/ashley-adaros/DecoVista.git
+cd DecoVista
+```
 
-2. **Permisos y Configuración de ARCore:**
-   Asegúrate de que la cámara está declarada en tu manifest local como requerida para filtrar dispositivos no compatibles en Google Play:
-   ```xml
-   <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
-   ```
+### 2. Compilar la aplicación Android
+Para sincronizar, descargar dependencias y compilar el APK de depuración:
+```bash
+# En Windows (PowerShell/CMD):
+.\gradlew.bat assembleDebug
 
-3. **Compilación:**
-   Sincroniza el proyecto con Gradle Files y ejecuta la aplicación:
-   ```bash
-   ./gradlew assembleDebug
-   ```
+# En Linux/macOS:
+./gradlew assembleDebug
+```
+
+### 3. Ejecutar la simulación de consola (JVM pura)
+Si deseas validar el comportamiento del motor geométrico, el cálculo OBB y el teorema SAT sin usar un emulador de Android:
+```powershell
+# Ejecutar el script automatizado en PowerShell:
+.\run_simulation.ps1
+```
+
+> [!TIP]
+> El simulador ejecutará de forma automática tres escenarios de prueba e imprimirá las métricas de ocupación, espacio y colisión en la consola.
 
 ---
 
 ## 🧪 Pruebas Unitarias
-Para ejecutar las pruebas del motor de geometría y validar el algoritmo de colisión e indicadores de espacio:
+
+Para ejecutar el banco de pruebas completo del motor matemático de colisiones y verificar los límites de habitación:
+
 ```bash
+# En Windows:
+.\gradlew.bat :core:calculator:testUnitTest
+
+# En Linux/macOS:
 ./gradlew :core:calculator:testUnitTest
 ```
