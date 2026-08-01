@@ -25,17 +25,17 @@ DecoVista está diseñada bajo los principios de **Clean Architecture** y **MVVM
 
 ```mermaid
 graph TD
-    subgraph :app
+    subgraph app [":app"]
         app[Orquestador / Navigation / DI Entry]
     end
 
-    subgraph :features (Funcionalidades)
+    subgraph features [":features (Funcionalidades)"]
         planner2d[planner2d : Plano interactivo]
         viewer3d[viewer3d : Visor AR 3D]
         catalog[catalog : Biblioteca de muebles]
     end
 
-    subgraph :core (Módulos transversales)
+    subgraph core [":core (Módulos transversales)"]
         ar-engine[ar-engine : Abstracción ARCore/Filament]
         calculator[calculator : Lógica matemática pura Kotlin]
         database[database : SQLite Room DB]
